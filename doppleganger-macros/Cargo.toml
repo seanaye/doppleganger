@@ -1,0 +1,13 @@
+[package]
+name = "doppleganger-macros"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+proc-macro = true
+
+[dependencies]
+doppleganger-macros-parse = { path = "../doppleganger-macros-parse" }
+proc-macro2 = { workspace = true }
+quote = { workspace = true }
+unsynn = { workspace = true }
