@@ -1,5 +1,5 @@
 use doppleganger_macros_parse::{
-    AdtDecl, AttributeInner, Cons, DgInner, DopplegagnerAttr, EndOfStream, Struct, StructField,
+    AdtDecl, AttributeInner, Cons, DgInner, EndOfStream, Struct, StructField,
 };
 use proc_macro2::TokenStream;
 use unsynn::*;

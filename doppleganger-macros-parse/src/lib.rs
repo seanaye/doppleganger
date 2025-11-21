@@ -97,7 +97,7 @@ unsynn! {
     /// Represents the inner content of an attribute annotation.
     pub enum AttributeInner {
         /// A dopplegagner attribute that can contain specialized metadata.
-        Dg(DopplegagnerAttr),
+        Dg(DopplegangerAttr),
         /// A documentation attribute typically used for generating documentation.
         Doc(DocInner),
         /// A representation attribute that specifies how data should be laid out.
@@ -107,7 +107,7 @@ unsynn! {
     }
 
     /// Represents a dg attribute that can contain specialized metadata.
-    pub struct DopplegagnerAttr {
+    pub struct DopplegangerAttr {
         /// The keyword for the dg attribute.
         pub _dg: KDg,
         /// The inner content of the dg attribute.
