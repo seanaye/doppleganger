@@ -10,3 +10,7 @@ doppleganger = { path = "../doppleganger" }
 [[example]]
 name = "basic_usage"
 path = "basic_usage.rs"
+
+[[example]]
+name = "rename_usage"
+path = "rename_usage.rs"

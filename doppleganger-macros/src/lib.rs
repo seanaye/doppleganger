@@ -26,7 +26,7 @@ fn dg_macros(input: TokenStream) -> TokenStream {
 
 fn process_struct(s: Struct) -> TokenStream {
     use doppleganger_macros_parse::ToTokens;
-    use quote::quote;
+    use quote::{format_ident, quote};
 
     // Find the dg attribute with direction
     let mut direction = None;
@@ -91,23 +91,32 @@ fn process_struct(s: Struct) -> TokenStream {
         }
     };
 
-    // Generate field transformations
-    let field_transforms = fields
-        .content
-        .iter()
-        .filter(|f| !field_has_dg_ignore(&f.value))
-        .map(|field| {
-            let field_name = &field.value.name;
-            let field_type = &field.value.typ;
-            let field_type_ts = field_type.to_token_stream();
-            quote! {
-                #field_name: <#field_type_ts as ::doppleganger::Mirror>::mirror(source.#field_name)
-            }
-        });
-
     match direction {
         doppleganger_macros_parse::DgDirection::Forward { path, .. } => {
             // For forward: Source = Self, Dest = OtherType
+            // If field has rename, use renamed name in dest, original name in source
+            let field_transforms = fields
+                .content
+                .iter()
+                .filter(|f| !field_has_dg_ignore(&f.value))
+                .map(|field| {
+                    let field_name = &field.value.name;
+                    let field_type = &field.value.typ;
+                    let field_type_ts = field_type.to_token_stream();
+
+                    // For forward: rename specifies the destination field name
+                    let dest_field_name = if let Some(rename) = field_get_dg_rename(&field.value) {
+                        let rename_ident = format_ident!("{}", rename);
+                        quote! { #rename_ident }
+                    } else {
+                        quote! { #field_name }
+                    };
+
+                    quote! {
+                        #dest_field_name: <#field_type_ts as ::doppleganger::Mirror>::mirror(source.#field_name)
+                    }
+                });
+
             let path_ts = path.to_token_stream();
             quote! {
                 impl #generic_params_ts ::doppleganger::Mirror for #struct_name #generic_names_ts {
@@ -124,6 +133,29 @@ fn process_struct(s: Struct) -> TokenStream {
         }
         doppleganger_macros_parse::DgDirection::Backward { path, .. } => {
             // For backward: Source = OtherType, Dest = Self
+            // If field has rename, use original name in dest, renamed name in source
+            let field_transforms = fields
+                .content
+                .iter()
+                .filter(|f| !field_has_dg_ignore(&f.value))
+                .map(|field| {
+                    let field_name = &field.value.name;
+                    let field_type = &field.value.typ;
+                    let field_type_ts = field_type.to_token_stream();
+
+                    // For backward: rename specifies the source field name
+                    let source_field_name = if let Some(rename) = field_get_dg_rename(&field.value) {
+                        let rename_ident = format_ident!("{}", rename);
+                        quote! { #rename_ident }
+                    } else {
+                        quote! { #field_name }
+                    };
+
+                    quote! {
+                        #field_name: <#field_type_ts as ::doppleganger::Mirror>::mirror(source.#source_field_name)
+                    }
+                });
+
             let path_ts = path.to_token_stream();
             quote! {
                 impl #generic_params_ts ::doppleganger::Mirror for #struct_name #generic_names_ts {
@@ -153,5 +185,27 @@ fn field_has_dg_ignore(field: &StructField) -> bool {
                 .iter()
                 .any(|inner| matches!(inner.value, DgInner::Ignore(_))),
             _ => false,
+        })
+}
+
+/// get the renamed field name if present
+fn field_get_dg_rename(field: &StructField) -> Option<String> {
+    use doppleganger_macros_parse::ToTokens;
+
+    field
+        .attributes
+        .iter()
+        .find_map(|attr| match &attr.body.content {
+            AttributeInner::Dg(attr) => attr.inner.content.iter().find_map(|inner| {
+                if let DgInner::Rename(rename) = &inner.value {
+                    // Extract the string value from the LiteralString
+                    let value_str = rename.value.to_token_stream().to_string();
+                    // Remove surrounding quotes
+                    Some(value_str.trim_matches('"').to_string())
+                } else {
+                    None
+                }
+            }),
+            _ => None,
         })
 }
