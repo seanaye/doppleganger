@@ -1,4 +1,6 @@
-use doppleganger_macros_parse::{AdtDecl, Cons, EndOfStream, Struct};
+use doppleganger_macros_parse::{
+    AdtDecl, AttributeInner, Cons, DgInner, DopplegagnerAttr, EndOfStream, Struct, StructField,
+};
 use proc_macro2::TokenStream;
 use unsynn::*;
 
@@ -90,9 +92,10 @@ fn process_struct(s: Struct) -> TokenStream {
     };
 
     // Generate field transformations
-    let field_transforms: Vec<_> = fields
+    let field_transforms = fields
         .content
         .iter()
+        .filter(|f| !field_has_dg_ignore(&f.value))
         .map(|field| {
             let field_name = &field.value.name;
             let field_type = &field.value.typ;
@@ -100,8 +103,7 @@ fn process_struct(s: Struct) -> TokenStream {
             quote! {
                 #field_name: <#field_type_ts as ::doppleganger::Mirror>::mirror(source.#field_name)
             }
-        })
-        .collect();
+        });
 
     match direction {
         doppleganger_macros_parse::DgDirection::Forward { path, .. } => {
@@ -137,4 +139,19 @@ fn process_struct(s: Struct) -> TokenStream {
             }
         }
     }
+}
+
+/// determine if a field should be ignored
+fn field_has_dg_ignore(field: &StructField) -> bool {
+    field
+        .attributes
+        .iter()
+        .any(|attr| match &attr.body.content {
+            AttributeInner::Dg(attr) => attr
+                .inner
+                .content
+                .iter()
+                .any(|inner| matches!(inner.value, DgInner::Ignore(_))),
+            _ => false,
+        })
 }

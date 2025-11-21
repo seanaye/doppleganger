@@ -19,6 +19,8 @@ pub struct DbUser {
     pub username: String,
     pub email: String,
     pub active: bool,
+    #[dg(ignore)]
+    pub not_present: bool,
 }
 
 pub mod ext {
@@ -52,6 +54,7 @@ fn main() {
         username: "alice".to_string(),
         email: "alice@example.com".to_string(),
         active: true,
+        not_present: true,
     };
 
     println!("Source (DbUser): {:#?}", db_user);
@@ -84,12 +87,14 @@ fn main() {
             username: "bob".to_string(),
             email: "bob@example.com".to_string(),
             active: true,
+            not_present: false,
         },
         DbUser {
             id: 2,
             username: "charlie".to_string(),
             email: "charlie@example.com".to_string(),
             active: false,
+            not_present: false,
         },
     ];
 

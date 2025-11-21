@@ -35,6 +35,8 @@ keyword! {
     pub KForward = "forward";
     /// The "backward" keyword
     pub KBackward = "backward";
+    /// the "ignore" keywoard
+    pub KIgnore = "ignore";
 }
 
 operator! {
@@ -122,8 +124,8 @@ unsynn! {
         Default(KDefault),
         /// A rename attribute that specifies a custom name for a field/variant (#[dg(rename = "custom_name")])
         Rename(RenameInner),
-        /// A flatten attribute that marks a field to be flattened into the parent structure
-        Flatten(FlattenInner),
+        /// Ignore the field in the forward direction
+        Ignore(KIgnore)
     }
 
     pub enum DgDirection {
