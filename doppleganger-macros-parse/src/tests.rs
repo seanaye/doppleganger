@@ -1,0 +1,47 @@
+use super::*;
+use quote::quote;
+
+#[test]
+fn test_struct_with_field_doc_comments() {
+    let input = quote! {
+        #[derive(Dopplegagner)]
+        pub struct User {
+            #[doc = " The user's unique identifier"]
+            pub id: u64,
+        }
+    };
+
+    let mut it = input.to_token_iter();
+    let parsed = it.parse::<Struct>().expect("Failed to parse struct");
+
+    // Check that we parsed the struct correctly
+    assert_eq!(parsed.name.to_string(), "User");
+
+    // Extract fields from the struct
+    if let StructKind::Struct { fields, .. } = &parsed.kind {
+        let field_list = &fields.content;
+        assert_eq!(field_list.len(), 1);
+
+        // Check first field (id)
+        let id_field = &field_list[0].value;
+        assert_eq!(id_field.name.to_string(), "id");
+
+        // Extract doc comments from id field
+        let mut doc_found = false;
+        for attr in &id_field.attributes {
+            match &attr.body.content {
+                AttributeInner::Doc(doc_inner) => {
+                    // This should work with LiteralString
+                    assert_eq!(doc_inner.value, " The user's unique identifier");
+                    doc_found = true;
+                }
+                _ => {
+                    // Skip non-doc attributes
+                }
+            }
+        }
+        assert!(doc_found, "Should have found a doc comment");
+    } else {
+        panic!("Expected a regular struct with named fields");
+    }
+}
