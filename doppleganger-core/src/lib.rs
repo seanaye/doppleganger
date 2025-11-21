@@ -1,15 +1,15 @@
 use std::{borrow::Cow, collections::HashMap};
 
-pub trait Doppleganger {
+pub trait Mirror {
     type Source;
     type Dest;
 
     fn mirror(source: Self::Source) -> Self::Dest;
 }
 
-impl<T> Doppleganger for Vec<T>
+impl<T> Mirror for Vec<T>
 where
-    T: Doppleganger,
+    T: Mirror,
 {
     type Source = Vec<T::Source>;
 
@@ -17,16 +17,13 @@ where
 
     #[inline]
     fn mirror(source: Self::Source) -> Self::Dest {
-        source
-            .into_iter()
-            .map(<T as Doppleganger>::mirror)
-            .collect()
+        source.into_iter().map(<T as Mirror>::mirror).collect()
     }
 }
 
-impl<T> Doppleganger for Option<T>
+impl<T> Mirror for Option<T>
 where
-    T: Doppleganger,
+    T: Mirror,
 {
     type Source = Option<T::Source>;
 
@@ -34,14 +31,14 @@ where
 
     #[inline]
     fn mirror(source: Self::Source) -> Self::Dest {
-        source.map(<T as Doppleganger>::mirror)
+        source.map(<T as Mirror>::mirror)
     }
 }
 
-impl<T, E> Doppleganger for Result<T, E>
+impl<T, E> Mirror for Result<T, E>
 where
-    T: Doppleganger,
-    E: Doppleganger,
+    T: Mirror,
+    E: Mirror,
 {
     type Source = Result<T::Source, E::Source>;
 
@@ -50,15 +47,15 @@ where
     #[inline]
     fn mirror(source: Self::Source) -> Self::Dest {
         source
-            .map(<T as Doppleganger>::mirror)
-            .map_err(<E as Doppleganger>::mirror)
+            .map(<T as Mirror>::mirror)
+            .map_err(<E as Mirror>::mirror)
     }
 }
 
-impl<K, V> Doppleganger for HashMap<K, V>
+impl<K, V> Mirror for HashMap<K, V>
 where
-    K: Doppleganger,
-    V: Doppleganger,
+    K: Mirror,
+    V: Mirror,
     K::Dest: Eq + std::hash::Hash,
 {
     type Source = HashMap<K::Source, V::Source>;
@@ -68,19 +65,14 @@ where
     fn mirror(source: Self::Source) -> Self::Dest {
         source
             .into_iter()
-            .map(|(k, v)| {
-                (
-                    <K as Doppleganger>::mirror(k),
-                    <V as Doppleganger>::mirror(v),
-                )
-            })
+            .map(|(k, v)| (<K as Mirror>::mirror(k), <V as Mirror>::mirror(v)))
             .collect()
     }
 }
 
 pub trait Primitive: Sized {}
 
-impl<T> Doppleganger for T
+impl<T> Mirror for T
 where
     T: Primitive,
 {
@@ -107,6 +99,8 @@ impl Primitive for u64 {}
 impl Primitive for u32 {}
 impl Primitive for u16 {}
 impl Primitive for u8 {}
+impl Primitive for f64 {}
+impl Primitive for f32 {}
 impl Primitive for bool {}
 
 #[cfg(feature = "chrono")]

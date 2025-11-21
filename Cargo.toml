@@ -1,6 +1,14 @@
 [workspace]
 resolver = "2"
-members = ["doppleganger-core","doppleganger-macros", "doppleganger-macros-parse"]
+default-members = ["doppleganger"]
+members = [
+  "doppleganger",
+  "doppleganger-core",
+  "doppleganger-macros",
+  "doppleganger-macros-parse",
+  "examples",
+]
+
 
 [workspace.dependencies]
 unsynn = "0.3"

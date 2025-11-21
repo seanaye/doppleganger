@@ -2,8 +2,15 @@
 name = "doppleganger-macros-parse"
 version = "0.1.0"
 edition = "2024"
+description = "Parser for doppleganger proc-macro attributes"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/seanaye/doppleganger"
 
 [dependencies]
 unsynn = { workspace = true }
 quote = { workspace = true }
 proc-macro2 = { workspace = true }
+
+
+[dev-dependencies]
+cool_asserts = "2"

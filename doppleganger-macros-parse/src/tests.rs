@@ -1,4 +1,5 @@
 use super::*;
+use cool_asserts::assert_matches;
 use quote::quote;
 
 #[test]
@@ -44,4 +45,18 @@ fn test_struct_with_field_doc_comments() {
     } else {
         panic!("Expected a regular struct with named fields");
     }
+}
+
+#[test]
+fn it_parses_mod_path() {
+    let mut token_iter = "axum::http::HeaderMap".to_token_iter();
+    let m: ModPath = token_iter.parse().unwrap();
+    assert_matches!(m, Cons { first: None, second, .. } => {
+        let f = second.first().unwrap().value.to_string();
+        assert_eq!(f, "axum");
+        let f = second.get(1).unwrap().value.to_string();
+        assert_eq!(f, "http");
+        let f = second.get(2).unwrap().value.to_string();
+        assert_eq!(f, "HeaderMap");
+    });
 }

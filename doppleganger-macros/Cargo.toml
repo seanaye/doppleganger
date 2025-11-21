@@ -2,12 +2,15 @@
 name = "doppleganger-macros"
 version = "0.1.0"
 edition = "2024"
+description = "Proc-macro implementation for doppleganger type transformations"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/seanaye/doppleganger"
 
 [lib]
 proc-macro = true
 
 [dependencies]
-doppleganger-macros-parse = { path = "../doppleganger-macros-parse" }
+doppleganger-macros-parse = { version = "0.1.0", path = "../doppleganger-macros-parse" }
 proc-macro2 = { workspace = true }
 quote = { workspace = true }
 unsynn = { workspace = true }

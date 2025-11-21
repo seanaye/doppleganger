@@ -53,10 +53,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "cool_asserts"
+version = "2.0.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ee9f254e53f61e2688d3677fa2cbe4e9b950afd56f48819c98817417cf6b28ec"
+dependencies = [
+ "indent_write",
+]
+
+[[package]]
 name = "core-foundation-sys"
 version = "0.8.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "773648b94d0e5d620f64f280777445740e61fe701025087ec8b57f45c791888b"
+
+[[package]]
+name = "doppleganger"
+version = "0.1.0"
+dependencies = [
+ "doppleganger-core",
+ "doppleganger-macros",
+]
 
 [[package]]
 name = "doppleganger-core"
@@ -64,6 +81,13 @@ version = "0.1.0"
 dependencies = [
  "chrono",
  "uuid",
+]
+
+[[package]]
+name = "doppleganger-examples"
+version = "0.1.0"
+dependencies = [
+ "doppleganger",
 ]
 
 [[package]]
@@ -80,6 +104,7 @@ dependencies = [
 name = "doppleganger-macros-parse"
 version = "0.1.0"
 dependencies = [
+ "cool_asserts",
  "proc-macro2",
  "quote",
  "unsynn",
@@ -114,6 +139,12 @@ checksum = "f31827a206f56af32e590ba56d5d2d085f558508192593743f16b2306495269f"
 dependencies = [
  "cc",
 ]
+
+[[package]]
+name = "indent_write"
+version = "2.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0cfe9645a18782869361d9c8732246be7b410ad4e919d3609ebabdac00ba12c3"
 
 [[package]]
 name = "js-sys"

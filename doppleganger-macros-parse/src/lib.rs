@@ -53,7 +53,7 @@ pub type VerbatimUntil<C> = Many<Cons<Except<C>, AngleTokenTree>>;
 
 /// Represents a module path, consisting of an optional path separator followed by
 /// a path-separator-delimited sequence of identifiers.
-pub type ModPath = Cons<Option<PathSep>, PathSepDelimited<Ident>>;
+type ModPath = Cons<Option<PathSep>, DelimitedVec<Ident, PathSep>>;
 
 /// Represents type bounds, consisting of a colon followed by tokens until
 /// a comma, equals sign, or closing angle bracket is encountered.
