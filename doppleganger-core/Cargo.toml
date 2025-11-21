@@ -1,0 +1,12 @@
+[package]
+name = "doppleganger-core"
+version = "0.1.0"
+edition = "2024"
+
+[features]
+chrono = ["dep:chrono"]
+uuid = ["dep:uuid"]
+
+[dependencies]
+chrono = { version = "0.4.42", optional = true }
+uuid = { version = "1.18.1", optional = true }

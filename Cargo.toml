@@ -1,0 +1,8 @@
+[workspace]
+resolver = "2"
+members = ["doppleganger-core","doppleganger-macros", "doppleganger-macros-parse"]
+
+[workspace.dependencies]
+unsynn = "0.3"
+quote = "1"
+proc-macro2 = "1"

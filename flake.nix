@@ -30,6 +30,7 @@
             latest.rust-src
             latest.rust-analyzer
             latest.clippy
+            latest.rustfmt
           ];
 
         # Crane library for building Rust packages
