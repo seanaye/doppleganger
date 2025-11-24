@@ -1,5 +1,5 @@
 use doppleganger_macros_parse::{
-    AdtDecl, AttributeInner, Cons, DgInner, EndOfStream, Struct, StructField,
+    AdtDecl, AttributeInner, Cons, DgInner, DgMap, EndOfStream, ModPath, Struct, StructField,
 };
 use proc_macro2::TokenStream;
 use unsynn::*;
@@ -112,9 +112,23 @@ fn process_struct(s: Struct) -> TokenStream {
                         quote! { #field_name }
                     };
 
-                    quote! {
-                        #dest_field_name: <#field_type_ts as ::doppleganger::Mirror>::mirror(source.#field_name)
+
+                    match field_has_dg_map(&field.value) {
+                        None => {
+                            quote! {
+                                #dest_field_name: <#field_type_ts as ::doppleganger::Mirror>::mirror(source.#field_name)
+                            }
+                            
+                        },
+                        Some(path) => {
+                            let tokens = path.to_token_stream();
+                            quote! {
+                                #dest_field_name: <field_type_ts as ::doppleganger::Mirror>::mirror(#tokens(source.#field_name))
+                            }
+                        }
+                        
                     }
+
                 });
 
             let path_ts = path.to_token_stream();
@@ -151,8 +165,18 @@ fn process_struct(s: Struct) -> TokenStream {
                         quote! { #field_name }
                     };
 
-                    quote! {
-                        #field_name: <#field_type_ts as ::doppleganger::Mirror>::mirror(source.#source_field_name)
+                    match field_has_dg_map(&field.value) {
+                        None => {
+                            quote! {
+                                #field_name: <#field_type_ts as ::doppleganger::Mirror>::mirror(source.#source_field_name)
+                            }
+                        },
+                        Some(path) => {
+                            let tokens = path.to_token_stream();
+                            quote! {
+                                #field_name: #tokens(source.#source_field_name)
+                            }
+                        }
                     }
                 });
 
@@ -185,6 +209,24 @@ fn field_has_dg_ignore(field: &StructField) -> bool {
                 .iter()
                 .any(|inner| matches!(inner.value, DgInner::Ignore(_))),
             _ => false,
+        })
+}
+
+fn field_has_dg_map(field: &StructField) -> Option<&ModPath> {
+    field
+        .attributes
+        .iter()
+        .find_map(|attr| match &attr.body.content {
+            AttributeInner::Dg(attr) => {
+                attr.inner
+                    .content
+                    .iter()
+                    .find_map(|inner| match &inner.value {
+                        DgInner::Map(DgMap { path, .. }) => Some(path),
+                        _ => None,
+                    })
+            }
+            _ => None,
         })
 }
 

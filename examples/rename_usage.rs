@@ -1,4 +1,5 @@
-use doppleganger::{Mirror, Doppleganger};
+use doppleganger::{Doppleganger, Mirror};
+use std::sync::Arc;
 
 // Test forward rename
 #[derive(Doppleganger)]
@@ -22,8 +23,8 @@ struct ApiUser {
 #[dg(backward = SourceData)]
 struct DestData {
     value: i32,
-    #[dg(rename = "old_name")]
-    new_name: String,
+    #[dg(rename = "old_name", map = Arc::from)]
+    new_name: Arc<str>,
 }
 
 #[derive(Debug, PartialEq)]
@@ -54,8 +55,11 @@ fn main() {
 
     let dest: DestData = DestData::mirror(source);
     assert_eq!(dest.value, 42);
-    assert_eq!(dest.new_name, "test");
-    println!("Backward rename test passed: value={}, new_name={}", dest.value, dest.new_name);
+    assert_eq!(dest.new_name.as_ref(), "test");
+    println!(
+        "Backward rename test passed: value={}, new_name={}",
+        dest.value, dest.new_name
+    );
 
     println!("All rename tests passed!");
 }

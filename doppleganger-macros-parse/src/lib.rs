@@ -37,6 +37,8 @@ keyword! {
     pub KBackward = "backward";
     /// the "ignore" keywoard
     pub KIgnore = "ignore";
+    /// the "map" keyword
+    pub KMap = "map"
 }
 
 operator! {
@@ -55,7 +57,7 @@ pub type VerbatimUntil<C> = Many<Cons<Except<C>, AngleTokenTree>>;
 
 /// Represents a module path, consisting of an optional path separator followed by
 /// a path-separator-delimited sequence of identifiers.
-type ModPath = Cons<Option<PathSep>, DelimitedVec<Ident, PathSep>>;
+pub type ModPath = Cons<Option<PathSep>, DelimitedVec<Ident, PathSep>>;
 
 /// Represents type bounds, consisting of a colon followed by tokens until
 /// a comma, equals sign, or closing angle bracket is encountered.
@@ -125,7 +127,15 @@ unsynn! {
         /// A rename attribute that specifies a custom name for a field/variant (#[dg(rename = "custom_name")])
         Rename(RenameInner),
         /// Ignore the field in the forward direction
-        Ignore(KIgnore)
+        Ignore(KIgnore),
+        /// map the field from one value to another
+        Map(DgMap)
+    }
+
+    pub struct DgMap {
+        _map: KMap,
+        _eq: Eq,
+        pub path: ModPath
     }
 
     pub enum DgDirection {
